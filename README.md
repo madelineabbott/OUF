@@ -1,6 +1,6 @@
 # Dynamic factor model for ILD
 
-This repository constains code for fitting the Ornstein-Uhlenbeck factor (OUF) model along with a simulated dataset for illustrative purposes.  The R file used to generate the simulated data is also provided.
+This repository constains code for fitting the Ornstein-Uhlenbeck factor (OUF) model along with a simulated dataset for illustrative purposes.
 
 * Data simulated from a bivariate factor model with 4 longitudinal outcomes is contained in **sim_dat.csv**.
 
