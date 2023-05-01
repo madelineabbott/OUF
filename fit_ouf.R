@@ -6,7 +6,7 @@
 #devtools::install_github("https://github.com/madelineabbott/FABOUP_fast.git", ref="main")
 
 # Set working directory
-wd <- '/Users/madelineabbott/Dropbox/Dissertation/BreakFree/Break_Free_SimDat/Project_1_code/Github_example/'
+wd <- ''
 
 # Source some functions used for estimation
 source(file = paste0(wd, 'functions_ouf.R'))
