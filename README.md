@@ -10,4 +10,4 @@ devtools::install_github("https://github.com/madelineabbott/FABOUP_fast.git", re
 ```
 * Initial parameter estimates can be supplied by the user or can be estimated empirically using **init_ouf.R**.
 
-To fit the OUF model, users should begin with the **fit_ouf.R** file.  All other R files are called within this main file.  For questions, please contact mrabbott@umich.edu.
+To fit the OUF model, users should begin with the **fit_ouf.R** file.  All other files are called within this main file.  For questions, please contact mrabbott@umich.edu.
