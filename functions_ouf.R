@@ -29,22 +29,22 @@ kronsum <- function(A, B){
 }
 
 # for marginal covariance (if eta(t_0) is unknown)
-Gamma2 <- function(theta_boup, sigma_boup, t, s){ # t <= s
+Gamma2 <- function(theta_ou, sigma_ou, t, s){ # t <= s
   if(t > s){
     return('error: t <= s is required')
   }
-  theta_ks <- kronsum(theta_boup, theta_boup)
+  theta_ks <- kronsum(theta_ou, theta_ou)
   theta_ks.inv <- solve(theta_ks)
   
   term1 <- theta_ks.inv
-  term2 <- expm(t*theta_ks - kronsum(theta_boup*t, theta_boup*s))
-  term3 <- matrix(sigma_boup %*% t(sigma_boup), ncol = 1)
+  term2 <- expm(t*theta_ks - kronsum(theta_ou*t, theta_ou*s))
+  term3 <- matrix(sigma_ou %*% t(sigma_ou), ncol = 1)
   
   out <- matrix(term1 %*% term2 %*% term3,
-                nrow = nrow(theta_boup), ncol = nrow(theta_boup))
+                nrow = nrow(theta_ou), ncol = nrow(theta_ou))
   
   return(t(as.matrix(out,
-                     row = nrow(theta_boup), ncol = nrow(theta_boup))))
+                     row = nrow(theta_ou), ncol = nrow(theta_ou))))
 }
 
 
@@ -397,8 +397,8 @@ FA_negllk <- function(m_params_vec, Psi_list){
 # NOTE: sigma is estimated on log scale
 BOUP_neg_loglik_i <- function(params, c_vec, i) {
   # cat('person #:', i, '\n')
-  theta_param_length = length(as.vector(theta_boup))
-  theta_current = matrix(params[1:theta_param_length], nrow = nrow(theta_boup))
+  theta_param_length = length(as.vector(theta_ou))
+  theta_current = matrix(params[1:theta_param_length], nrow = nrow(theta_ou))
   sigma_current = diag(x = exp(params[(theta_param_length+1):length(params)]),
                        nrow = length(exp(params[(theta_param_length+1):length(params)])))
   
@@ -433,8 +433,8 @@ BOUP_neg_loglik_i <- function(params, c_vec, i) {
 }
 
 BOUP_negloglik_n <- function(params, c_vec) {
-  theta_param_length <- length(as.vector(theta_boup))
-  theta_current <- matrix(params[1:theta_param_length], nrow = nrow(theta_boup))
+  theta_param_length <- length(as.vector(theta_ou))
+  theta_current <- matrix(params[1:theta_param_length], nrow = nrow(theta_ou))
   
   # check that theta corresponds to mean-reverting process
   theta_ok <- as.numeric(all(Re(eigen(theta_current)$values) > 0))
@@ -479,8 +479,8 @@ FABOUP_negllk_i <- function(m_params_vec, i){
   cur_Theta <- diag((exp(log_theta_vec))^2)
   cur_Theta_mat <- kronecker(diag(ni), cur_Theta)
   # update theta_OU
-  theta_param_length = length(as.vector(theta_boup))
-  theta_current = matrix(m_params_vec[(3*k+1):(3*k+theta_param_length)], nrow = nrow(theta_boup))
+  theta_param_length = length(as.vector(theta_ou))
+  theta_current = matrix(m_params_vec[(3*k+1):(3*k+theta_param_length)], nrow = nrow(theta_ou))
   # update sigma_OU
   sigma_current = diag(x = exp(m_params_vec[(3*k+theta_param_length+1):length(m_params_vec)]),
                        nrow = p)
@@ -525,9 +525,9 @@ FABOUP_negllk_i <- function(m_params_vec, i){
 
 # for all i = 1, ..., N subjects
 FABOUP_negloglik_n <- function(m_params_vec, calc_sigma = TRUE) {
-  theta_param_length = length(as.vector(theta_boup))
+  theta_param_length = length(as.vector(theta_ou))
   theta_current = matrix(m_params_vec[(3*k+1):(3*k+theta_param_length)],
-                         nrow = nrow(theta_boup))
+                         nrow = nrow(theta_ou))
   
   if (calc_sigma == TRUE){
     sigma_current = calc_sigma(theta_current)

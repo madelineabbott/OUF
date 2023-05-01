@@ -6,7 +6,7 @@
 #devtools::install_github("https://github.com/madelineabbott/FABOUP_fast.git", ref="main")
 
 # Set working directory
-wd <- ''
+wd <- '/Users/madelineabbott/Dropbox/Dissertation/BreakFree/Break_Free_SimDat/Project_1_code/Github_example/'
 
 # Source some functions used for estimation
 source(file = paste0(wd, 'functions_ouf.R'))
@@ -27,13 +27,30 @@ nonzero <- matrix(c(1, 1, 0, 0, 0, 0, 1, 1), ncol = p)
 
 # Parameters can either be initialized empirically or with user-defined values.
 #  Specify the approach to be used here:
-init_method <- 'empirical' # other option is 'user_def'
+init_method <- 'user_def' # options are 'empirical' or 'user_def'
 
 # Number of cores--used for parallel calculation of gradients
 n_cores <- 4
 
 
 set.seed(22210)
+
+
+################################################################################
+## Define variables and data components
+################################################################################
+
+# Define sample size and number of measurements per individual
+n_subj <- length(unique(sim_dat$user.id))
+measurement_n <- as.numeric(table(sim_dat$user.id))
+max_ni <- max(measurement_n)
+
+# Set up measurement times for each individual
+measurement_times <- matrix(nrow = n_subj, ncol = max_ni)
+for (i in 1:n_subj){
+  ni <- measurement_n[i]
+  measurement_times[i,1:ni] <- sim_dat$meas_time[sim_dat$user.id == i]
+}
 
 ################################################################################
 ## Initialize parameters
@@ -180,17 +197,6 @@ fitBOUP <- function(initial, c_vec, gradtol, steptol){
 #  initialization is used, then all of this set up is done in the init_ouf.R file.
 
 if (init_method == 'user_def'){
-  # Define sample size and max number of measurement occasions
-  n_subj <- length(unique(sim_dat$user.id))
-  measurement_n <- as.numeric(table(sim_dat$user.id))
-  max_ni <- max(measurement_n)
-  
-  ### set up measurement occasions
-  measurement_times <- matrix(nrow = n_subj, ncol = max_ni)
-  for (i in 1:n_subj){
-    ni <- measurement_n[i]
-    measurement_times[i,1:ni] <- sim_dat$end_hrs[sim_dat$user.id == i]
-  }
   
   # observed longitudinal outcome
   all_person_Y <- matrix(NA, nrow = n_subj, ncol = k*max_ni)
@@ -199,7 +205,7 @@ if (init_method == 'user_def'){
     nrow_CovY <- ni * k
     obs_Y <- sim_dat %>%
       filter(user.id == i) %>%
-      dplyr::select(all_of(emotion_items))
+      dplyr::select(paste0('Y', 1:k))
     all_person_Y[i, 1:nrow_CovY] <- matrix(c(t(obs_Y)), nrow = 1)
   }
   
@@ -217,14 +223,13 @@ if (init_method == 'user_def'){
   
   
   ### 2. Set dimensions of OUP parameter values & factor model parameters
-  nonzero <- nonzero_for_fitting
   theta_ou <- diag(x = 1, nrow = p)
   sigma_ou <- diag(x = 1, nrow = p)
   Lambda <- matrix(0, nrow = k, ncol = p)
   Lambda[nonzero == 1] <- 1
   Sigma_u <- diag(k)
   Sigma_e <- diag(k)
-  c_star <- rep(1, p)
+  c_vec <- rep(1, p)
 }
 
 ################################################################################
@@ -449,11 +454,14 @@ res_se <- rbind(res_se, data.frame(variable = paste0('sigma_ou_', 1:p, 1:p),
 #  but still have the same model.  If we interpret the latent factors as
 #  positive and negative affect, we'd expect them to be negatively correlated--
 #  a positive correlation was estimated so we flip the signs for interpretation.
+V_hat <- construct_V(theta_ou_hat, diag(sigma_ou_hat))
+if (V_hat[1,2] >= 0){ # if latent variables are positively correlated, then flip
+  res_se <- res_se %>%
+    mutate(est = case_when(variable %in% c('lambda_3', 'lambda_4',
+                                           'theta_ou_12', 'theta_ou_21') ~ -est,
+                           TRUE ~ est))
+}
 
-res_se <- res_se %>%
-  mutate(est = case_when(variable %in% c('lambda_3', 'lambda_4',
-                                         'theta_ou_12', 'theta_ou_21') ~ -est,
-                         TRUE ~ est))
 
 
 cat('---- FINAL ESTIMATES ---- \n')
