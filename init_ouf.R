@@ -280,7 +280,7 @@ init_params = list(lambda_vec = prelim_lambda_vec, # nonzero elements of Lambda
                    theta_ou = theta_ou, # OU parameters
                    sigma_ou = sigma_ou) 
 
-cat('Initial parameter estimates are stored in the list called "init_params"')
+cat('Initial parameter estimates are stored in the list called "init_params" \n')
 
 
 
