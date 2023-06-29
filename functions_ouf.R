@@ -493,21 +493,6 @@ FABOUP_negllk_i <- function(m_params_vec, i){
                                     theta = theta_current, theta_t = theta_t,
                                     sigma2_vec = sigma2_vec,
                                     ni = ni, times = c(meas_times_i))
-  # for debugging
-  # if (det(cur_Omega_i) == 0){
-  #   print(theta_current)
-  #   print(sigma_current)
-  #   print(cur_Omega_i)
-  #   write.csv(data.frame(omega_by.cols = as.vector(cur_Omega_i)),
-  #             paste0(wd, 'data/omega_i.csv'))
-  # }
-  # cat('    eigenvalues of precision matrix are', eigen(cur_Omega_i)$values, '      \n \n ')
-  # if (!all(eigen(cur_Omega_i)$values > 0)){
-  #   cat('~ ~ ~ ~ using generalize inverse... ~ ~ ~ ~ \n \n \n ')
-  #   cur_Psi_i <- MASS::ginv(cur_Omega_i)
-  # }else{
-  #   
-  # }
   
   cur_Psi_i <- solve(cur_Omega_i)
   cur_Psi_i <- (cur_Psi_i + t(cur_Psi_i))/2
