@@ -11,80 +11,81 @@ Mat<double> calc_precision_cpp(arma::mat kron_sum_theta, arma::mat theta,
                       arma::mat theta_t, arma::mat sigma2_vec,
                       double ni, arma::vec times) {
   
-  double t_jminus1;
-  
   //Rcpp::Rcout << t_jminus1 << std::endl; 
   
 
   // some preliminary calculatuions
-  arma::mat var1;
-  var1 = arma::inv(kron_sum_theta);
-  var1 = var1 * sigma2_vec;
-  var1 = arma::reshape(var1, theta.n_rows, theta.n_rows);
-  arma::mat temp;
+  arma::mat V;
+  V = arma::inv(kron_sum_theta);
+  V = V * sigma2_vec; 
+  V = arma::reshape(V, theta.n_rows, theta.n_rows); // stationary variance
+  arma::mat Vinv;
+  Vinv = arma::inv(V); // inverse of stationary variance
+  arma::mat diagonal;
   arma::mat offdiagonal;
   arma::mat tempterm1;
-  arma::mat tempterm2a;
-  arma::mat tempterm2b;
-  arma::mat tempterm2c;
   arma::mat tempterm2;
+  arma::mat tempterm3;
+  arma::mat tempterm4;
+  arma::mat tempterm5;
   arma::mat Omega(theta.n_rows*ni, theta.n_rows*ni, fill::zeros);
   
+  double t_j;
+  double t_jplus1;
+  double t_jminus1;
+  
   for(int j = 0; j < ni; j++){
-    double t_j = times[j];
+    t_j = times[j];
     if (j == 0){
-      //cout << "if " << t_j << endl;
-      double t_jplus1 = times[j+1];
-      temp = arma::inv(var1 - arma::expmat(-theta * (t_jplus1 - t_j)) * var1 * arma::expmat(-theta_t * (t_jplus1 - t_j)));
-      tempterm1 = arma::inv(var1 - arma::expmat(-theta * (t_jplus1 - t_j))
-                     * var1 * arma::expmat(-theta_t*(t_jplus1-t_j)));
+      // Omega_11
+      t_jplus1 = times[j+1];
+      tempterm1 = arma::expmat(-theta_t * (t_jplus1 - t_j));
       tempterm2 = arma::expmat(-theta * (t_jplus1 - t_j));
-      offdiagonal = -(tempterm1 * tempterm2);
-        
+      diagonal = arma::inv(V - V * tempterm1 * Vinv * tempterm2 * V);
     } else if (j == (ni-1)){
-      //cout << "else if " << t_j << endl;
+      // Omega_nn:
       t_jminus1 = times[j-1];
-      tempterm2a = arma::expmat(-theta_t * (t_j - t_jminus1));
-      tempterm1 = arma::inv(var1);
-      tempterm2b = arma::inv(var1 - arma::expmat(-theta * (t_j - t_jminus1)) * var1 * arma::expmat(-theta_t*(t_j - t_jminus1)));
-      tempterm2c = arma::expmat(-theta * (t_j-t_jminus1));
-      temp = tempterm2a * (tempterm2b * tempterm2c) + tempterm1;
-    } else {
-      //cout << "else " << t_j << endl;
-      t_jminus1 = times[j-1];
-      double t_jplus1 = times[j+1];
-      tempterm2a = arma::expmat(-theta_t * (t_j - t_jminus1));
-      tempterm1 = arma::inv(var1 - arma::expmat(-theta * (t_jplus1 - t_j)) * var1 * arma::expmat(-theta_t * (t_jplus1 - t_j)));
-      tempterm2b = arma::inv(var1 - arma::expmat(-theta * (t_j - t_jminus1)) * var1 * arma::expmat(-theta_t*(t_j - t_jminus1)));
-      tempterm2c = arma::expmat(-theta * (t_j-t_jminus1));
-      tempterm2 = tempterm2a * (tempterm2b * tempterm2c);
-      temp = tempterm1 + tempterm2;
+      tempterm1 = arma::expmat(-theta * (t_j - t_jminus1));
+      tempterm1 = tempterm1 * V;
+      tempterm2 = arma::expmat(-theta_t * (t_j - t_jminus1));
+      tempterm2 = tempterm2 * Vinv;
       
-      tempterm1 = arma::inv(var1 - arma::expmat(-theta * (t_jplus1 - t_j))
-                              * var1 * arma::expmat(-theta_t*(t_jplus1-t_j)));
-      tempterm2 = arma::expmat(-theta * (t_jplus1 - t_j));
-      offdiagonal = -(tempterm1 * tempterm2);
+      // Omega_nn
+      diagonal = Vinv + Vinv * tempterm1 * arma::inv(V - V * tempterm2 * tempterm1) * V * tempterm2;
+    
+      // Omega_n-1,n
+      offdiagonal = -arma::inv(V - V * tempterm2 * tempterm1) * V * tempterm2;
+    
+    } else {
+      // Omega_j,j-1, Omega_j,j, Omega_j,j+1 where Omega_j,j-1 = t(Omega_j,j+1)
+      t_jminus1 = times[j-1];
+      t_jplus1 = times[j+1];
+      tempterm1 = arma::expmat(-theta_t * (t_jplus1 - t_j));
+      tempterm2 = tempterm1 * Vinv;
+      tempterm3 = arma::expmat(-theta * (t_j - t_jminus1));
+      tempterm4 = tempterm3 * V;
+      tempterm5 = arma::trans(tempterm3) * Vinv;
+
+      // Omega_j,j
+      diagonal = Vinv + Vinv * tempterm4 * arma::inv(V - V * tempterm5 * tempterm4) *
+        V * tempterm5 + arma::inv(V - V * tempterm2 * arma::trans(tempterm1) * V) *
+        V * tempterm2 * arma::trans(tempterm1);
+        
+      // Omega_j-1,j
+      offdiagonal = -arma::inv(V - V * tempterm5 * tempterm4) * V * tempterm5;
     }
-    //update precision matrix Omega
+    
+    // Update diagonals: Omega[j,j]
     Omega.submat(j*theta.n_rows, j*theta.n_rows,
-                 j*theta.n_rows + theta.n_rows-1, j*theta.n_rows + theta.n_rows-1) = temp;
-    if (j != (ni-1)){
-      Omega.submat(j*theta.n_rows, (j+1)*theta.n_rows,
-                   j*theta.n_rows + theta.n_rows-1, (j+1)*theta.n_rows + theta.n_rows-1) = offdiagonal;
-      Omega.submat((j+1)*theta.n_rows, j*theta.n_rows,
-                   (j+1)*theta.n_rows + theta.n_rows-1, j*theta.n_rows + theta.n_rows-1) = arma::trans(offdiagonal);
+                 j*theta.n_rows + theta.n_rows-1, j*theta.n_rows + theta.n_rows-1) = diagonal;
+    if (j != 0){
+      // Update off-diagonals: Omega[j-1,j] and Omega[j,j-1]
+      Omega.submat((j-1)*theta.n_rows, j*theta.n_rows,
+                   (j-1)*theta.n_rows + theta.n_rows-1, j*theta.n_rows + theta.n_rows-1) = offdiagonal;
+      Omega.submat(j*theta.n_rows, (j-1)*theta.n_rows,
+                   j*theta.n_rows + theta.n_rows-1, (j-1)*theta.n_rows + theta.n_rows-1) = arma::trans(offdiagonal);
     }
-
   }
-  
-  //cout << theta.n_rows << endl;
-  
   return Omega;
-  
 }
-
-
-
-
-
 
