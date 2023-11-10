@@ -6,7 +6,7 @@ This repository contains example code for fitting the Ornstein-Uhlenbeck factor 
 
 * The OUF model can be fit using the code in **fit_ouf.R**.  This code uses functions that are provided in **ouf_functions.R**, along with some additional functions written in C++.  The C++ functions can be installed in R using 
 ```
-devtools::install_github("madelineabbott/FABOUP_fast")
+devtools::install_github("madelineabbott/OUF_grad_fast")
 ```
 * Initial parameter estimates can be supplied by the user or can be estimated empirically using **init_ouf.R**.
 
