@@ -321,7 +321,7 @@ ll_grad <- function(m_params, all_person_Y_centered, Psi_list){
   # cl <- parallel::makeCluster(n_cores)
   # doParallel::registerDoParallel(cl)
   clusterExport(cl, c("measurement_times", "k", "lli_grad", "p", "nonzero"))
-  grad_list <- foreach(i = 1:n_subj, .packages = 'mrabbott') %dopar% {
+  grad_list <- foreach(i = 1:n_subj, .packages = 'OUFgrad') %dopar% {
     ni <- length(measurement_times[i,!is.na(measurement_times[i,])])
     Y_i <- all_person_Y_centered[i, 1:(k*ni)]
     Psi_i <- Psi_list[[i]]
