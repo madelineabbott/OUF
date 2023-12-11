@@ -10,4 +10,6 @@ devtools::install_github("madelineabbott/OUFgrad")
 ```
 * Initial parameter estimates can be supplied by the user or can be estimated empirically using **fit_model/init_ouf.R**.
 
+* AIC and BIC can be calculated using **fit_model/calc_aic_bic.R**
+
 To fit the OUF model, users should begin with the **fit_model/fit_ouf.R** file.  All other files used in the estimation algorithm are called within this main file.  For questions, please contact mrabbott@umich.edu.
