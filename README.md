@@ -2,7 +2,7 @@
 
 This repository contains example code for fitting the Ornstein-Uhlenbeck factor (OUF) model along with code for simulating datasets. For more details, see https://arxiv.org/abs/2307.15681.
 
-* Measurements of 4 longitudinal outcomes can be simulated from OU factor models with either 1, 2, or 3 latent factors using **generate_data/ouf_sim_dat.R**.  As an example, **generate_data/data/sim_dat_v1_g1.csv** contains data generated from a OU factor model with 2 latent factors.
+* Measurements of 4 longitudinal outcomes can be simulated from OU factor models with either 1, 2, or 3 latent factors using **generate_data/ouf_sim_dat.R**.  As an example, **generate_data/data/sim_dat_v1_g1.csv** contains data generated from an OU factor model with 2 latent factors.
 
 * The OUF model can be fit using the code in **fit_model/fit_ouf.R**.  This code uses functions that are provided in **fit_model/ouf_functions.R**, along with some code written in C++ (see **fit_model/ou_precision_matrix.cpp**).  Additional C++ functions can be installed in R using 
 ```
