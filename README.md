@@ -12,4 +12,4 @@ devtools::install_github("madelineabbott/OUFgrad")
 
 * AIC and BIC can be calculated using **fit_model/calc_aic_bic.R**
 
-To fit the OUF model, users should begin with the **fit_model/fit_ouf.R** file.  All other files used in the estimation algorithm are called within this main file.  For questions, please contact mrabbott@umich.edu.
+To fit the OUF model, users should begin with the **fit_ouf.R** file.  All other files that contain code used in the estimation algorithm are called within this main file.  For questions, please contact mrabbott@umich.edu.
