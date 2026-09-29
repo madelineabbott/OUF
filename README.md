@@ -1,6 +1,6 @@
 # Dynamic factor model for ILD
 
-This repository contains example code for fitting the Ornstein-Uhlenbeck factor (OUF) model along with code for simulating datasets. For more details, see the publication in [Psychometrika](https://www.cambridge.org/core/journals/psychometrika/article/continuoustime-dynamic-factor-model-for-intensive-longitudinal-data-arising-from-mobile-health-studies/EE380EDBA92097C3DF054FB2CB954636?utm_campaign=shareaholic&utm_medium=copy_link&utm_source=bookmark).
+This repository contains example code for fitting the Ornstein-Uhlenbeck factor (OUF) model along with code for simulating datasets. For more details, see the publication in [*Psychometrika*](https://www.cambridge.org/core/journals/psychometrika/article/continuoustime-dynamic-factor-model-for-intensive-longitudinal-data-arising-from-mobile-health-studies/EE380EDBA92097C3DF054FB2CB954636?utm_campaign=shareaholic&utm_medium=copy_link&utm_source=bookmark).
 
 * Measurements of 4 longitudinal outcomes can be simulated from OU factor models with either 1, 2, or 3 latent factors using **generate_data/ouf_sim_dat.R**.  As an example, **generate_data/data/sim_dat_v1_g1.csv** contains data generated from an OU factor model with 2 latent factors.
 
